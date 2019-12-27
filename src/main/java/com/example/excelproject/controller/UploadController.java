@@ -1,6 +1,9 @@
 package com.example.excelproject.controller;
 
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +21,7 @@ public class UploadController {
 	}
 	
 	@PostMapping("/upload")
-	public void upload (@RequestParam("file") MultipartFile file) throws Exception   {
-		uploadService.upload(file);
+	public void upload(@RequestParam("file") MultipartFile file) throws Exception   {
+		 uploadService.upload(file);
 	}
 }
