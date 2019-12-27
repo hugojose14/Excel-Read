@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -32,6 +33,15 @@ public class UploadService {
 		Sheet sheet = workbook.getSheetAt(0);
 		 
 		Stream <Row> rowStream = StreamSupport.stream(sheet.spliterator(), false);
+		
+		Row headerRow = rowStream.findFirst().get();
+		
+		List<String> headerCells = StreamSupport.stream(headerRow.spliterator(),false)
+					.map(Cell::getStringCellValue)
+					.collect(Collectors.toList());
+		
+		System.out.println(headerCells);
+		
 		
 		rowStream.forEach(row -> {
 			Stream<Cell> cellStream = StreamSupport.stream(row.spliterator(),false);
