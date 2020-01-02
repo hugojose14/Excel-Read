@@ -25,53 +25,49 @@ import com.example.excelproject.util.UploadUtil;
 @Service
 public class UploadService {
 	
-	private final UploadUtil uploadUtil;
-
-	public UploadService(UploadUtil uploadUtil) {
-		this.uploadUtil = uploadUtil;
-	}
-	
-	public void upload(MultipartFile file) throws Exception {
-		// TODO Auto-generated method stub
-		
-		Path tempDir = Files.createTempDirectory("");
+	ppublic Map<String, List<Map<String, String>>> upload(MultipartFile file) throws Exception {
+		Path tempDir= Files.createTempDirectory("");
 		File tempFile = tempDir.resolve(file.getOriginalFilename()).toFile();
-		
 		file.transferTo(tempFile);
 		
 		Workbook workbook = WorkbookFactory.create(tempFile);
+		Stream<Sheet> sheets = StreamSupport.stream(workbook.spliterator(), false);
+		Map<String, List<Map<String, String>>> rowStreampSupplier  = new HashMap<>();
 		
-		Sheet sheet = workbook.getSheetAt(0);
-		 
-		Supplier<Stream<Row>> rowStreamSupplier = uploadUtil.getRowStreamSupplier(sheet);
-		Row headerRow = rowStreamSupplier.get().findFirst().get();
-		
-		List<String> headerCells = StreamSupport.stream(headerRow.spliterator(),false)
-					.map(Cell::getStringCellValue)
-					.collect(Collectors.toList());
-		
-		int colCount = headerCells.size();
-		
-		
-		System.out.println(headerCells);
-		
-		
-		rowStreamSupplier.get()
-		.map(row -> {
-			
-			List<String> cellList = StreamSupport.stream(row.spliterator(),false)
-					.map(Cell::getStringCellValue)
-					.collect(Collectors.toList());
-			
-			return IntStream.range(0, colCount)
-				.boxed()
-				.collect(Collectors.toMap(
-						index -> headerCells.get(index),
-						index -> cellList.get(index)));
-			
-		})
-		.collect(Collectors.toList());
-		
-	}
+		int leaves= workbook.getNumberOfSheets();
+		System.out.println(leaves);
+		sheets.forEach(sheet ->{ 
+			Stream<Row> rows = StreamSupport.stream(sheet.spliterator(), false);
+			List <List<String>> value = new ArrayList<>();
+			rows.forEach(row ->{
+				//obtenemos todas las celdas y se crea una lista para guardarlos 
+				Stream<Cell> cells = StreamSupport.stream(row.spliterator(), false);
+				List<String> rowValues = new ArrayList<>();
+				cells.forEach(cell ->{
+					//obtenemos todas las celdas y verificamos si esta vacia
+					String valueCell = cell.toString();
+					if (valueCell  != "") {
+						rowValues.add(valueCell);
+					}
+				});
+				if (!rowValues.isEmpty()) {
+					
+					value.add(rowValues);
+				}
+			});
+			List<Map<String, String>> listRows = new ArrayList<>();
+			List<String> headersCell = value.get(0);
+			value.remove(0);
+			for (List<String> sheetValue : value) {
+				Map<String, String> mapCells = IntStream.range(0, headersCell.size())
+						.boxed()
+						.collect(Collectors
+						.toMap(headersCell::get, sheetValue::get));
+				listRows.add(mapCells);
+			}
+			rowStreampSupplier.put(sheet.getSheetName(), listRows);
+	});
+		return rowStreampSupplier;
+		}
 	
 }
