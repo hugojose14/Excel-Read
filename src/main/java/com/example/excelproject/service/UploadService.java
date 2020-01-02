@@ -40,11 +40,9 @@ public class UploadService {
 			Stream<Row> rows = StreamSupport.stream(sheet.spliterator(), false);
 			List <List<String>> value = new ArrayList<>();
 			rows.forEach(row ->{
-				//obtenemos todas las celdas y se crea una lista para guardarlos 
 				Stream<Cell> cells = StreamSupport.stream(row.spliterator(), false);
 				List<String> rowValues = new ArrayList<>();
 				cells.forEach(cell ->{
-					//obtenemos todas las celdas y verificamos si esta vacia
 					String valueCell = cell.toString();
 					if (valueCell  != "") {
 						rowValues.add(valueCell);
