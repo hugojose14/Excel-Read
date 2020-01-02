@@ -21,7 +21,7 @@ public class UploadController {
 	}
 	
 	@PostMapping("/upload")
-	public void upload(@RequestParam("file") MultipartFile file) throws Exception   {
-		 uploadService.upload(file);
+	public Map<String, List<Map<String, String>>> upload(@RequestParam("file") MultipartFile file) throws Exception {
+		 return uploadService.upload(file);
 	}
 }
